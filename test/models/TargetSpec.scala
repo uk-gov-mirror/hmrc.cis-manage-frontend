@@ -27,6 +27,7 @@ class TargetSpec extends AnyWordSpec with Matchers {
       Target.fromKey("returnDue") mustBe Some(Target.Returns)
       Target.fromKey("returnHistory") mustBe Some(Target.Returns)
       Target.fromKey("amendReturn") mustBe Some(Target.Returns)
+      Target.fromKey("manageYourCisReturn") mustBe Some(Target.Returns)
     }
 
     "return Notices for any notices key" in {
@@ -36,6 +37,10 @@ class TargetSpec extends AnyWordSpec with Matchers {
 
     "return Subcontractor for any subcontractor key" in {
       Target.fromKey("subcontractors") mustBe Some(Target.Subcontractor)
+    }
+
+    "return ManageContractorDetails for any manage contractor details key" in {
+      Target.fromKey("contractorDetails") mustBe Some(Target.ManageContractorDetails)
     }
 
     "return None for an unknown key" in {

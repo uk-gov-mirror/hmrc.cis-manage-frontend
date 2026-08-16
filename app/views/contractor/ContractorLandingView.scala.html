@@ -68,7 +68,7 @@
     @twoColumnGrid(
         ptaCard(
             title = messages("contractorLanding.landing.card.manageYourContractorDetails.title"),
-            link = "#",
+            link = controllers.contractor.routes.ContractorLandingController.onTargetClick("contractorDetails").url,
             content = Html(messages("contractorLanding.landing.card.manageYourContractorDetails.p")),
             id = Some("manage-your-contractor-details")
         ),

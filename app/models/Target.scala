@@ -21,6 +21,7 @@ object Target {
   case object Returns extends Target
   case object Notices extends Target
   case object Subcontractor extends Target
+  case object ManageContractorDetails extends Target
 
   private val returnsKeys = Set(
     "returnDue",
@@ -38,10 +39,15 @@ object Target {
     "subcontractors"
   )
 
+  private val manageContractorDetailsKeys = Set(
+    "contractorDetails"
+  )
+
   def fromKey(key: String): Option[Target] = key match {
-    case k if returnsKeys.contains(k)       => Some(Returns)
-    case k if noticesKeys.contains(k)       => Some(Notices)
-    case k if subcontractorKeys.contains(k) => Some(Subcontractor)
-    case _                                  => None
+    case k if returnsKeys.contains(k)                 => Some(Returns)
+    case k if noticesKeys.contains(k)                 => Some(Notices)
+    case k if subcontractorKeys.contains(k)           => Some(Subcontractor)
+    case k if manageContractorDetailsKeys.contains(k) => Some(ManageContractorDetails)
+    case _                                            => None
   }
 }

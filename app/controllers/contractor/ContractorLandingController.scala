@@ -27,7 +27,8 @@ import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import services.{ManageService, PrepopService}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import uk.gov.hmrc.http.HttpVerbs.GET
+import uk.gov.hmrc.http.{HeaderCarrier, HttpVerbs, UpstreamErrorResponse}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.contractor.ContractorLandingViewModel
@@ -170,9 +171,10 @@ class ContractorLandingController @Inject() (
 
   private def targetCall(target: Target, instanceId: String): Call =
     target match {
-      case Returns       => controllers.routes.ReturnsLandingController.onPageLoad(instanceId)
-      case Notices       => controllers.notices.routes.ManageNoticesStatementsController.onPageLoad(instanceId)
-      case Subcontractor => controllers.routes.SubcontractorsLandingPageController.onPageLoad(instanceId)
+      case Returns                 => controllers.routes.ReturnsLandingController.onPageLoad(instanceId)
+      case Notices                 => controllers.notices.routes.ManageNoticesStatementsController.onPageLoad(instanceId)
+      case Subcontractor           => controllers.routes.SubcontractorsLandingPageController.onPageLoad(instanceId)
+      case ManageContractorDetails => Call(GET, appConfig.contractorDetailsManagementUrl)
     }
 }
 

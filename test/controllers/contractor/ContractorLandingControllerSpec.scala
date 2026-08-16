@@ -20,6 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.contractor.ContractorLandingController.fromUserAnswers
 import models.{Scheme, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{verify, verifyNoInteractions, when}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.scalatest.matchers.should.Matchers.*
@@ -343,6 +344,92 @@ class ContractorLandingControllerSpec extends SpecBase {
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).value mustBe controllers.routes.SystemErrorController.onPageLoad().url
+      }
+    }
+
+    "must pass contractor details management call to determineLandingDestination when contractorDetails target is selected" in {
+
+      val mockPrepopService = mock[PrepopService]
+
+      val scheme = Scheme(
+        schemeId = 123,
+        instanceId = instanceId,
+        utr = Some("1234567890"),
+        name = Some("ABC Ltd"),
+        prePopSuccessful = Some("Y"),
+        subcontractorCounter = Some(5)
+      )
+
+      when(
+        mockPrepopService.prepopulateContractorKnownFacts(
+          any[String],
+          any[String],
+          any[String]
+        )(any[HeaderCarrier])
+      ).thenReturn(Future.unit)
+
+      when(
+        mockPrepopService.getScheme(any[String])(any[HeaderCarrier])
+      ).thenReturn(
+        Future.successful(Some(scheme))
+      )
+
+      when(
+        mockPrepopService.determineLandingDestination(
+          any[Call],
+          any[String],
+          any[Scheme],
+          any[Call],
+          any[Call]
+        )
+      ).thenReturn(
+        controllers.routes.ReturnsLandingController.onPageLoad(instanceId)
+      )
+
+      val application =
+        applicationBuilder(
+          userAnswers = Some(uaWithCisId),
+          additionalBindings = Seq.empty
+        )
+          .overrides(
+            bind[PrepopService].toInstance(mockPrepopService)
+          )
+          .build()
+
+      running(application) {
+
+        val appConfig =
+          application.injector.instanceOf[FrontendAppConfig]
+
+        val request =
+          FakeRequest(
+            GET,
+            controllers.contractor.routes.ContractorLandingController
+              .onTargetClick("contractorDetails")
+              .url
+          )
+
+        val result =
+          route(application, request).value
+
+        status(result) mustBe SEE_OTHER
+
+        val targetCallCaptor =
+          ArgumentCaptor.forClass(classOf[Call])
+
+        verify(mockPrepopService).determineLandingDestination(
+          targetCallCaptor.capture(),
+          eqTo(instanceId),
+          eqTo(scheme),
+          any[Call],
+          any[Call]
+        )
+
+        val capturedTargetCall =
+          targetCallCaptor.getValue
+
+        capturedTargetCall.method mustBe GET
+        capturedTargetCall.url mustBe appConfig.contractorDetailsManagementUrl
       }
     }
   }
